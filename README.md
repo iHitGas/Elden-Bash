@@ -1,7 +1,7 @@
 # Elden Bash
 
 I started making this game when I was originally getting into Linux/Bash scripting.
-Elden Bash is a spin off of Elden Ring but as text based terminal.
+Elden Bash is a spin off of Elden Ring but as text based terminal that works on any Linux Distribution 
 
 ## Description
 
@@ -11,9 +11,8 @@ In this terminal based game you start of by picking one of the characters, each 
 ## Getting Started
 
 To get Started you must clone the github repository to which ever folder u choose.
-```
-https://youtube.com
-```
+
+```https://youtube.com ```
 
 ### Dependencies
 
