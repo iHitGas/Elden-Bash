@@ -18,7 +18,7 @@ In this terminal based game you start of by picking one of the characters, each 
 To get Started you must clone the github repository to which ever folder u choose.
 
 ```
-git clone https://iHitGas/Elden-Bash.git
+git clone https://github.com/iHitGas/Elden-Bash.git
 ```
 
 ### Installing
