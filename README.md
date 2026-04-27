@@ -6,6 +6,7 @@ Elden Bash is a spin off of Elden Ring but as text based terminal.
 ## Description
 
 Elden Bash has plenty of features including: Plenty of Weapons, areas, fights, items, an XP system, and more.
+In this terminal based game you start of by picking one of the characters, each with different stats and abilities. You go around exploring different areas collecting loot and fighting monsters.
 
 ## Getting Started
 
