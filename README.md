@@ -26,13 +26,13 @@ git clone https://github.com/iHitGas/Elden-Bash.git
 First cd into the Elden-Bash folder and give it permmisions.
 
 ```
-cd Elden-Bash && chmod +x Elden-Bash.sh
+cd Elden-Bash && chmod +x Elden_Bash.sh
 ```
 
 ### Executing program
 
 ```
-./Elden-Bash.sh
+./Elden_Bash.sh
 ```
 
 ## Authors
