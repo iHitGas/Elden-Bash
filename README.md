@@ -12,7 +12,9 @@ In this terminal based game you start of by picking one of the characters, each 
 
 To get Started you must clone the github repository to which ever folder u choose.
 
-```https://youtube.com```
+```
+https://youtube.com
+```
 
 ### Dependencies
 
