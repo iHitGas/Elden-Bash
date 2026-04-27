@@ -10,8 +10,8 @@ In this terminal based game you start of by picking one of the characters, each 
 
 ### Dependencies
 
-* Any Linux Distribution
-* Git Downloaded
+* Use any Linux Distribution
+* Download Git
 
 ## Getting Started
 
