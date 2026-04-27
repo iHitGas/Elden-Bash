@@ -6,13 +6,18 @@ Elden Bash is a spin off of Elden Ring but as text based terminal.
 ## Description
 
 Elden Bash has plenty of features including: Plenty of Weapons, areas, fights, items, an XP system, and more.
-In this terminal based game you start of by picking one of the characters, each with different stats and abilities. You go around exploring different areas collecting loot and fighting monsters.
+In this terminal based game you start of by picking one of the characters, each with different stats and abilities. You go around exploring different areas collecting loot and fighting monsters. The more you play, the more prepared you are for the next fight.
 
 ## Getting Started
 
+To get Started you must clone the github repository to which ever folder u choose.
+```
+https://youtube.com
+```
+
 ### Dependencies
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
+* Go into any linux distribution and open the terminal.
 * ex. Windows 10
 
 ### Installing
