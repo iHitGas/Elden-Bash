@@ -21,6 +21,9 @@ init_player() {
     PLAYER[rune_location]=""
     PLAYER[deaths]=0
     PLAYER[kills]=0
+    PLAYER[xp_from_kills]=0
+    PLAYER[poison_status]=0
+    PLAYER[spec_cooldown]=0
 
     PLAYER[location]="stranded_graveyard"
     PLAYER[location_name]="Stranded Graveyard"
@@ -30,9 +33,13 @@ init_player() {
     PLAYER[def_buff]=0
     PLAYER[is_dodging]=0
     PLAYER[is_guarding]=0
+    PLAYER[backstab_ready]=0
 
     # Spells: space-separated list of spell IDs
     PLAYER[spells]=""
+
+    # Area clear tracking
+    PLAYER[area_clear_record]=""
 
     case "$class" in
         vagabond)
@@ -105,6 +112,7 @@ full_heal_player() {
     PLAYER[hp]="${PLAYER[max_hp]}"
     PLAYER[fp]="${PLAYER[max_fp]}"
     PLAYER[stamina]="${PLAYER[max_stamina]}"
+    PLAYER[poison_status]=0
 }
 
 show_player_stats() {
@@ -125,6 +133,10 @@ show_player_stats() {
     printf "  ${LRED}Attack:${NC}  %d (with %s)\n" "$weapon_dmg" "$(weapon_name "${PLAYER[weapon]}")"
     printf "  ${LBLUE}Defense:${NC} %d (with %s)\n\n" "$(armor_phys "${PLAYER[armor]}")" "$(armor_name "${PLAYER[armor]}")"
 
+    if [ "${PLAYER[poison_status]:-0}" -gt 0 ]; then
+        printf "  ${LMAGENTA}☠ POISONED${NC} (%d turns remaining)\n\n" "${PLAYER[poison_status]}"
+    fi
+
     if [ -n "${PLAYER[spells]}" ]; then
         printf "  ${CYAN}Known Spells:${NC}\n"
         for sp in ${PLAYER[spells]}; do
@@ -139,7 +151,8 @@ show_player_stats() {
     printf "  ${GOLD}Runes: %d${NC}   Next level: %d runes\n\n" \
         "${PLAYER[runes]}" "$next_cost"
 
-    printf "  ${DARK}Deaths: %d   Kills: %d${NC}\n\n" "${PLAYER[deaths]}" "${PLAYER[kills]}"
+    printf "  ${DARK}Deaths: %d   Kills: %d   XP from kills: %d${NC}\n\n" \
+        "${PLAYER[deaths]}" "${PLAYER[kills]}" "${PLAYER[xp_from_kills]:-0}"
     press_key
 }
 

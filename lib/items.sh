@@ -18,6 +18,13 @@ WEAPONS[magic_staff]="Glintstone Staff|12|0|0|12|10|16|magic|Channels glintstone
 WEAPONS[sacred_seal]="Sacred Seal|10|3|0|8|10|16|holy|Used to cast incantations."
 WEAPONS[club]="Club|20|10|0|0|12|22|strike|Simple but effective. High poise damage."
 WEAPONS[spear]="Spear|20|6|7|0|10|18|pierce|Longer reach, good for thrusting."
+# New weapons
+WEAPONS[uchigatana]="Uchigatana|24|5|10|0|10|20|slash|A katana with a deadly blade. Favors dexterity. Causes bleeding."
+WEAPONS[bloodhound_claw]="Bloodhound Claw|28|8|9|0|12|24|slash|A claw weapon from the Bloodhound Knight. Quick and savage."
+WEAPONS[moonveil]="Moonveil|30|4|8|10|11|22|magic|A katana of glintstone. Transforms into a magic blade. Scales with INT and DEX."
+WEAPONS[greatsword_orden]="Ordovis's Greatsword|42|12|2|0|20|34|slash|A colossal sword of ancient design. Immense strength required."
+WEAPONS[staff_of_loss]="Staff of Loss|10|0|0|15|8|14|magic|A heretical staff that boosts lost sorceries. Highest INT scaling."
+WEAPONS[dragon_king_fang]="Dragon King's Fang|34|9|8|0|14|26|slash|A fang wielded as a sword by the Dragonlord. Devastating power."
 
 weapon_name()      { cut -d'|' -f1 <<< "${WEAPONS[$1]}"; }
 weapon_base_dmg()  { cut -d'|' -f2 <<< "${WEAPONS[$1]}"; }
@@ -38,11 +45,14 @@ calc_weapon_damage() {
     local ss; ss=$(weapon_str_scale "$weapon_id")
     local ds; ds=$(weapon_dex_scale "$weapon_id")
     local is_; is_=$(weapon_int_scale "$weapon_id")
+    # Add upgrade bonus
+    local upgrade_lvl="${PLAYER[weapon_upgrade_${weapon_id}]:-0}"
+    local upgrade_bonus=$(( upgrade_lvl * 5 ))
     # Scales are ×10 integers, so bonus = stat * scale / 10
     local bonus_str=$(( str * ss / 10 ))
     local bonus_dex=$(( dex * ds / 10 ))
     local bonus_int=$(( int_val * is_ / 10 ))
-    echo $(( base + bonus_str + bonus_dex + bonus_int ))
+    echo $(( base + upgrade_bonus + bonus_str + bonus_dex + bonus_int ))
 }
 
 # ── Armor definitions ─────────────────────────────────────────────────────────
@@ -57,6 +67,12 @@ ARMORS[lordsworn_set]="Lordsworn's Armor|14|3|6|Armor of soldiers sworn to Godri
 ARMORS[raya_lucaria]="Raya Lucarian Robe|5|12|3|Sorcerer's robe from the Academy."
 ARMORS[crucible_set]="Crucible Knight Armor|22|8|10|Revered armor of ancient knights."
 ARMORS[bull_goat]="Bull-Goat Armor|30|6|15|The heaviest armor in the Lands Between."
+# New armors
+ARMORS[ronin_set]="Ronin's Set|14|6|4|Worn armor of a wandering samurai. Balanced and swift."
+ARMORS[blaidd_set]="Blaidd's Set|20|7|7|Wolf-like armor worn by Ranni's shadow. Fierce and protective."
+ARMORS[maliketh_armor]="Maliketh's Armor|24|10|9|Black blade armor worn by the Beast Champion. Fear incarnate."
+ARMORS[tree_sentinel_set]="Tree Sentinel Set|26|6|11|Golden armor of the Tree Sentinels. Heavy but majestic."
+ARMORS[preceptors_set]="Preceptor's Set|8|14|4|Scholarly robes of the Academy's preceptors. High magic defense."
 
 armor_name()   { cut -d'|' -f1 <<< "${ARMORS[$1]}"; }
 armor_phys()   { cut -d'|' -f2 <<< "${ARMORS[$1]}"; }
@@ -72,6 +88,11 @@ CONSUMABLES[exalted_flesh]="Exalted Flesh|str_buff|5|Temporarily boosts STR for 
 CONSUMABLES[uplifting_aroma]="Uplifting Aromatic|def_buff|10|Temporarily boosts defense."
 CONSUMABLES[starlight_shards]="Starlight Shards|fp|20|Restores FP using starlight."
 CONSUMABLES[cerulean_flask]="Flask of Cerulean Tears|fp|40|Restores a large amount of FP."
+# New consumables
+CONSUMABLES[war_ash]="War Ash|str_buff|12|A pinch of incendiary ash. Greatly boosts STR for one battle."
+CONSUMABLES[opal_bubble]="Opal Hardtear Bubble|def_buff|20|A shimmering bubble that greatly boosts defense."
+CONSUMABLES[bolus]="Neutralizing Bolus|cure_poison|0|Cures poison and scarlet rot. Essential for survival."
+CONSUMABLES[fire_pots]="Fire Pot|throwable|65|A pot filled with flaming powder. Hurls at enemies for damage."
 
 consumable_name()   { cut -d'|' -f1 <<< "${CONSUMABLES[$1]}"; }
 consumable_effect() { cut -d'|' -f2 <<< "${CONSUMABLES[$1]}"; }
@@ -88,6 +109,12 @@ SPELLS[great_glintstone]="Great Glintstone Shard|18|55|12|1|A large, powerful so
 SPELLS[rock_sling]="Rock Sling|22|28|10|3|Pulls up debris and hurls it. Three hits."
 SPELLS[comet]="Comet|35|120|14|1|A powerful comet of condensed magic."
 SPELLS[cannon]="Cannon of Haima|50|160|15|1|Mighty explosion of glintstone magic."
+# New spells
+SPELLS[loretta_mastery]="Loretta's Mastery|30|90|13|3|Loretta's signature sorcery. Hurls three glintstone blades."
+SPELLS[ancient_lions_claw]="Ancient Lions Claw|20|70|11|1|A bestial incantation that rends with claw strikes."
+SPELLS[black_blade_incant]="Black Blade Incantation|40|110|14|1|Channel the power of Destined Death. Deals massive damage."
+SPELLS[flame_of_frenzy]="Flame of Frenzy|25|55|10|2|Unleash the frenzied flame. Hits twice with Maddening fire."
+SPELLS[golden_lightning]="Golden Lightning|18|50|12|2|Calls down golden lightning strikes. Two hits."
 
 spell_name()  { cut -d'|' -f1 <<< "${SPELLS[$1]}"; }
 spell_fp()    { cut -d'|' -f2 <<< "${SPELLS[$1]}"; }
@@ -95,6 +122,51 @@ spell_dmg()   { cut -d'|' -f3 <<< "${SPELLS[$1]}"; }
 spell_scale() { cut -d'|' -f4 <<< "${SPELLS[$1]}"; }
 spell_hits()  { cut -d'|' -f5 <<< "${SPELLS[$1]}"; }
 spell_desc()  { cut -d'|' -f6 <<< "${SPELLS[$1]}"; }
+
+# ── Item sell prices ─────────────────────────────────────────────────────────
+# item_id:price
+declare -A SELL_PRICES
+SELL_PRICES[broken_sword]=10
+SELL_PRICES[short_sword]=25
+SELL_PRICES[longsword]=50
+SELL_PRICES[greatsword]=120
+SELL_PRICES[bastard_sword]=80
+SELL_PRICES[dagger]=20
+SELL_PRICES[scimitar]=40
+SELL_PRICES[battle_axe]=60
+SELL_PRICES[magic_staff]=70
+SELL_PRICES[sacred_seal]=65
+SELL_PRICES[club]=15
+SELL_PRICES[spear]=45
+SELL_PRICES[uchigatana]=90
+SELL_PRICES[bloodhound_claw]=100
+SELL_PRICES[moonveil]=150
+SELL_PRICES[greatsword_orden]=200
+SELL_PRICES[staff_of_loss]=160
+SELL_PRICES[dragon_king_fang]=180
+SELL_PRICES[no_armor]=0
+SELL_PRICES[light_wrap]=10
+SELL_PRICES[vagabond_set]=40
+SELL_PRICES[soldier_set]=55
+SELL_PRICES[knight_set]=100
+SELL_PRICES[lordsworn_set]=70
+SELL_PRICES[raya_lucaria]=65
+SELL_PRICES[crucible_set]=150
+SELL_PRICES[bull_goat]=200
+SELL_PRICES[ronin_set]=80
+SELL_PRICES[blaidd_set]=120
+SELL_PRICES[maliketh_armor]=160
+SELL_PRICES[tree_sentinel_set]=140
+SELL_PRICES[preceptors_set]=90
+SELL_PRICES[rowa_raisin]=10
+SELL_PRICES[exalted_flesh]=25
+SELL_PRICES[uplifting_aroma]=30
+SELL_PRICES[starlight_shards]=20
+SELL_PRICES[cerulean_flask]=35
+SELL_PRICES[war_ash]=40
+SELL_PRICES[opal_bubble]=45
+SELL_PRICES[bolus]=30
+SELL_PRICES[fire_pots]=25
 
 # ── Inventory functions ───────────────────────────────────────────────────────
 # PLAYER[inventory] = "item_id:count item_id:count ..."

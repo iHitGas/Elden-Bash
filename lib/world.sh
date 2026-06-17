@@ -9,6 +9,9 @@ AREA_NAMES[liurnia]="Liurnia of the Lakes"
 AREA_NAMES[academy]="Academy of Raya Lucaria"
 AREA_NAMES[altus]="Altus Plateau"
 AREA_NAMES[leyndell]="Leyndell, Royal Capital"
+AREA_NAMES[mount_gelmir]="Mount Gelmir"
+AREA_NAMES[caelid]="Caelid"
+AREA_NAMES[consecrated_snowfield]="Consecrated Snowfield"
 
 declare -A AREA_DESCRIPTIONS
 AREA_DESCRIPTIONS[stranded_graveyard]="You awaken in a crumbling underground graveyard. The air smells of old death. Somewhere above, the Erdtree glows gold. You are Tarnished — called by grace to reclaim your destiny."
@@ -18,16 +21,22 @@ AREA_DESCRIPTIONS[liurnia]="A vast flooded lowland beneath a purple sky. The Aca
 AREA_DESCRIPTIONS[academy]="Towers of blue stone pierce the sky. Within the Academy, the full moon shines even at midday. Rennala, the once-great queen of full moon sorcery, sits cradling her golden amber egg deep within the inner library."
 AREA_DESCRIPTIONS[altus]="High plateaus of golden grass that catch the light of the Erdtree. Ancient golems patrol the roads. The walls of Leyndell are visible on the horizon, gleaming gold."
 AREA_DESCRIPTIONS[leyndell]="The Royal Capital, partially buried in the roots of the Erdtree. Golden soldiers and knights of the Order patrol its elegant, ruined streets. At its heart sits Morgott, the Omen King."
+AREA_DESCRIPTIONS[mount_gelmir]="A volcanic hellscape of molten rock and sulfurous fumes. Rivers of lava carve through blackened stone. Rykard, Lord of Blasphemy, dwells within the depths of the volcano, his serpent-devoured body commanding an army of inquisitors."
+AREA_DESCRIPTIONS[caelid]="A scarlet wasteland consumed by rot. The air itself seems diseased — red haze clings to every surface. The scarlet rot spreads from the heart of this cursed land, where Malenia once bloomed. Misbegotten and feral creatures roam the blighted wastes."
+AREA_DESCRIPTIONS[consecrated_snowfield]="An endless expanse of white, cold silence. The snow buries ancient ruins and forgotten battlefields. Only the strongest — and most desperate — venture here. The path to the final confrontation lies beyond."
 
 # Encounters per area: "enemy_id:chance ..."
 declare -A AREA_ENCOUNTERS
 AREA_ENCOUNTERS[stranded_graveyard]="hollow:60 giant_bat:30"
-AREA_ENCOUNTERS[limgrave]="godrick_soldier:55 wolves:40 giant_bat:25 crucible_knight:15"
+AREA_ENCOUNTERS[limgrave]="godrick_soldier:55 wolves:40 giant_bat:25 crucible_knight:15 demihuman:30"
 AREA_ENCOUNTERS[stormveil]="godrick_soldier:70 crucible_knight:40 troll:20"
-AREA_ENCOUNTERS[liurnia]="raya_sorcerer:60 wolves:30 crucible_knight:20"
-AREA_ENCOUNTERS[academy]="raya_sorcerer:70 golem:30"
+AREA_ENCOUNTERS[liurnia]="raya_sorcerer:60 wolves:30 crucible_knight:20 noble_sorcerer:35"
+AREA_ENCOUNTERS[academy]="raya_sorcerer:70 golem:30 noble_sorcerer:40"
 AREA_ENCOUNTERS[altus]="erdtree_knight:50 golem:35 dragon_soldier:40"
-AREA_ENCOUNTERS[leyndell]="leyndell_knight:65 golem:30 dragon_soldier:45"
+AREA_ENCOUNTERS[leyndell]="leyndell_knight:65 golem:30 dragon_soldier:45 black_knife_assassin:15"
+AREA_ENCOUNTERS[mount_gelmir]="iron_virgin:45 skeleton_militiaman:50 ulcerated_tree_spirit:25 dragon_soldier:30"
+AREA_ENCOUNTERS[caelid]="misbegotten:55 demihuman:45 ulcerated_tree_spirit:30 skeleton_militiaman:40 black_knife_assassin:20"
+AREA_ENCOUNTERS[consecrated_snowfield]="elden_beast_minion:50 iron_virgin:35 black_knife_assassin:30 ulcerated_tree_spirit:20"
 
 # One-time treasures per area
 declare -A AREA_TREASURES
@@ -38,15 +47,21 @@ AREA_TREASURES[liurnia]="magic_staff raya_lucaria starlight_shards glintstone_ar
 AREA_TREASURES[academy]="great_glintstone rock_sling"
 AREA_TREASURES[altus]="bastard_sword knight_set comet"
 AREA_TREASURES[leyndell]="crucible_set sacred_seal cannon"
+AREA_TREASURES[mount_gelmir]="bloodhound_claw blaidd_set war_ash fire_pots"
+AREA_TREASURES[caelid]="uchigatana ronin_set bolus opal_bubble moonveil"
+AREA_TREASURES[consecrated_snowfield]="dragon_king_fang maliketh_armor tree_sentinel_set staff_of_loss preceptors_set"
 
 declare -A AREA_CONNECTIONS
 AREA_CONNECTIONS[stranded_graveyard]="limgrave"
-AREA_CONNECTIONS[limgrave]="stranded_graveyard stormveil liurnia"
+AREA_CONNECTIONS[limgrave]="stranded_graveyard stormveil liurnia caelid"
 AREA_CONNECTIONS[stormveil]="limgrave"
 AREA_CONNECTIONS[liurnia]="limgrave academy"
 AREA_CONNECTIONS[academy]="liurnia altus"
-AREA_CONNECTIONS[altus]="academy leyndell"
-AREA_CONNECTIONS[leyndell]="altus"
+AREA_CONNECTIONS[altus]="academy leyndell mount_gelmir"
+AREA_CONNECTIONS[leyndell]="altus consecrated_snowfield"
+AREA_CONNECTIONS[mount_gelmir]="altus"
+AREA_CONNECTIONS[caelid]="limgrave"
+AREA_CONNECTIONS[consecrated_snowfield]="leyndell"
 
 # ── Site of Grace ─────────────────────────────────────────────────────────────
 
@@ -81,18 +96,181 @@ site_of_grace() {
         printf "  ${YELLOW}Lost runes nearby: %d — return here to recover them.${NC}\n\n" "${PLAYER[runes_on_ground]}"
 
     while true; do
-        local opts=("Level Up  (have ${PLAYER[runes]} runes)" "Memorize Spell" "Save Game" "Continue Exploring" "Travel")
+        local opts=("Level Up  (have ${PLAYER[runes]} runes)" "Memorize Spell" "Blacksmith (upgrade weapon)" "Merchant (buy/sell)" "Save Game" "Continue Exploring" "Travel")
         local choice
         choice=$(ask_menu "Grace's boon:" "${opts[@]}")
         case "$choice" in
             1) try_level_up ;;
             2) memorize_spell_menu ;;
-            3) save_menu ;;
-            4) return ;;
-            5) travel_menu; return ;;
+            3) blacksmith_menu ;;
+            4) merchant_menu ;;
+            5) save_menu ;;
+            6) return ;;
+            7) travel_menu; return ;;
             *) return ;;
         esac
     done
+}
+
+# ── Blacksmith NPC ────────────────────────────────────────────────────────────
+
+blacksmith_menu() {
+    while true; do
+        clear
+        printf "\n${GOLD}${BOLD}  ⚒  BLACKSMITH  ⚒${NC}\n\n"
+        printf "  ${GRAY}\"I can strengthen thy armament. For a price.\"${NC}\n\n"
+
+        local current_w="${PLAYER[weapon]}"
+        local wname; wname=$(weapon_name "$current_w")
+        local upgrade_key="weapon_upgrade_${current_w}"
+        local current_lvl="${PLAYER[$upgrade_key]:-0}"
+        local base_dmg; base_dmg=$(weapon_base_dmg "$current_w")
+        local current_dmg; current_dmg=$(calc_weapon_damage "$current_w" "${PLAYER[str]}" "${PLAYER[dex]}" "${PLAYER[int]}")
+
+        printf "  ${WHITE}Equipped Weapon:${NC} %s  (Upgrade +${current_lvl})\n" "$wname"
+        printf "  ${LRED}Current Damage:${NC} %d  (Base: %d)\n\n" "$current_dmg" "$base_dmg"
+
+        if [ "$current_lvl" -ge 10 ]; then
+            print_msg warn "This weapon is fully upgraded (+10)!"
+            press_key
+            return
+        fi
+
+        local next_lvl=$(( current_lvl + 1 ))
+        local upgrade_cost=$(( 200 * next_lvl ))
+        local next_bonus=$(( (next_lvl) * 5 ))
+        local next_dmg=$(( current_dmg + 5 ))
+
+        printf "  ${CYAN}Upgrade to +${next_lvl}:${NC}\n"
+        printf "    Damage: ${LRED}${current_dmg}${NC} → ${LGREEN}${next_dmg}${NC}\n"
+        printf "    Cost:   ${GOLD}${upgrade_cost} runes${NC}\n\n"
+
+        local choice
+        choice=$(ask_menu "Upgrade weapon?" "Upgrade to +${next_lvl} (${upgrade_cost} runes)" "Back")
+
+        case "$choice" in
+            1)
+                if [ "${PLAYER[runes]}" -lt "$upgrade_cost" ]; then
+                    print_msg warn "Not enough runes! Need ${upgrade_cost}, have ${PLAYER[runes]}."
+                    press_key
+                else
+                    PLAYER[runes]=$(( PLAYER[runes] - upgrade_cost ))
+                    PLAYER[$upgrade_key]="$next_lvl"
+                    print_msg good "${wname} upgraded to +${next_lvl}! Damage +5."
+                    press_key
+                fi
+                ;;
+            *) return ;;
+        esac
+    done
+}
+
+# ── Merchant NPC ──────────────────────────────────────────────────────────────
+
+merchant_menu() {
+    while true; do
+        clear
+        printf "\n${GOLD}${BOLD}  🛒  MERCHANT  🛒${NC}\n\n"
+        printf "  ${GRAY}\"Got some goods, have ye? I'll take 'em off yer hands.\"${NC}\n"
+        printf "  ${GOLD}Runes: %d${NC}\n\n" "${PLAYER[runes]}"
+
+        local choice
+        choice=$(ask_menu "What'll it be?" "Buy Items" "Sell Items" "Back")
+
+        case "$choice" in
+            1) _merchant_buy ;;
+            2) _merchant_sell ;;
+            *) return ;;
+        esac
+    done
+}
+
+_merchant_buy() {
+    # Available items for purchase
+    local buy_ids=(rowa_raisin exalted_flesh uplifting_aroma starlight_shards war_ash opal_bubble bolus fire_pots)
+    local buy_prices=(30 80 90 60 120 130 80 70)
+
+    local opts=()
+    for i in "${!buy_ids[@]}"; do
+        local id="${buy_ids[$i]}"
+        local price="${buy_prices[$i]}"
+        local name; name=$(consumable_name "$id")
+        opts+=("${name} — ${price} runes")
+    done
+    opts+=("Back")
+
+    local choice
+    choice=$(ask_menu "Buy which item?" "${opts[@]}")
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -gt "${#buy_ids[@]}" ]; then
+        return
+    fi
+
+    local idx=$(( choice - 1 ))
+    local item_id="${buy_ids[$idx]}"
+    local price="${buy_prices[$idx]}"
+
+    if [ "${PLAYER[runes]}" -lt "$price" ]; then
+        print_msg warn "Not enough runes! Need ${price}."
+        press_key
+        return
+    fi
+
+    PLAYER[runes]=$(( PLAYER[runes] - price ))
+    inventory_add "$item_id" 1
+    print_msg good "Bought $(consumable_name "$item_id") for ${price} runes."
+    press_key
+}
+
+_merchant_sell() {
+    local sell_ids=()
+    local sell_names=()
+    local sell_prices=()
+
+    # Collect sellable items from inventory
+    for entry in ${PLAYER[inventory]:-}; do
+        local id="${entry%%:*}"
+        local cnt="${entry##*:}"
+        [ "$cnt" -lt 1 ] && continue
+        local price="${SELL_PRICES[$id]:-0}"
+        [ "$price" -eq 0 ] && continue
+        sell_ids+=("$id")
+        local iname=""
+        if   [ -n "${WEAPONS[$id]+_}" ];     then iname=$(weapon_name "$id")
+        elif [ -n "${ARMORS[$id]+_}" ];      then iname=$(armor_name "$id")
+        elif [ -n "${CONSUMABLES[$id]+_}" ]; then iname=$(consumable_name "$id")
+        fi
+        sell_names+=("$iname x${cnt}")
+        sell_prices+=("$price")
+    done
+
+    if [ "${#sell_ids[@]}" -eq 0 ]; then
+        print_msg warn "Nothing to sell!"
+        press_key
+        return
+    fi
+
+    local opts=()
+    for i in "${!sell_ids[@]}"; do
+        opts+=("${sell_names[$i]} — ${sell_prices[$i]} runes each")
+    done
+    opts+=("Back")
+
+    local choice
+    choice=$(ask_menu "Sell which item?" "${opts[@]}")
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -gt "${#sell_ids[@]}" ]; then
+        return
+    fi
+
+    local idx=$(( choice - 1 ))
+    local item_id="${sell_ids[$idx]}"
+    local price="${sell_prices[$idx]}"
+
+    inventory_remove "$item_id" 1
+    PLAYER[runes]=$(( PLAYER[runes] + price ))
+    print_msg gold "Sold for ${price} runes."
+    press_key
 }
 
 memorize_spell_menu() {
@@ -100,14 +278,19 @@ memorize_spell_menu() {
     local min_int
     for sp_id in "${!SPELLS[@]}"; do
         case "$sp_id" in
-            glintstone_pebble)  min_int=10 ;;
-            glintstone_arc)     min_int=12 ;;
-            swift_glintstone)   min_int=12 ;;
-            great_glintstone)   min_int=16 ;;
-            rock_sling)         min_int=18 ;;
-            comet)              min_int=22 ;;
-            cannon)             min_int=28 ;;
-            *)                  min_int=10 ;;
+            glintstone_pebble)      min_int=10 ;;
+            glintstone_arc)         min_int=12 ;;
+            swift_glintstone)       min_int=12 ;;
+            great_glintstone)       min_int=16 ;;
+            rock_sling)             min_int=18 ;;
+            comet)                  min_int=22 ;;
+            cannon)                 min_int=28 ;;
+            loretta_mastery)        min_int=24 ;;
+            ancient_lions_claw)     min_int=18 ;;
+            black_blade_incant)     min_int=28 ;;
+            flame_of_frenzy)        min_int=16 ;;
+            golden_lightning)       min_int=20 ;;
+            *)                      min_int=10 ;;
         esac
         if ! echo " ${PLAYER[spells]:-} " | grep -qw "$sp_id" && [ "${PLAYER[int]}" -ge "$min_int" ]; then
             available+=("$sp_id")
@@ -137,7 +320,7 @@ memorize_spell_menu() {
             PLAYER[spells]="${PLAYER[spells]} $sp_id"
         fi
         print_msg good "Memorized: $(spell_name "$sp_id")!"
-        if [ "${PLAYER[weapon]}" != "magic_staff" ] && [ "${PLAYER[weapon]}" != "sacred_seal" ]; then
+        if [ "${PLAYER[weapon]}" != "magic_staff" ] && [ "${PLAYER[weapon]}" != "sacred_seal" ] && [ "${PLAYER[weapon]}" != "staff_of_loss" ]; then
             print_msg warn "Tip: equip a Glintstone Staff or Sacred Seal for better spell scaling."
         fi
         press_key
@@ -188,6 +371,29 @@ enter_area() {
     press_key
 }
 
+# Check if all encounters in an area have been fought enough
+check_area_clear_bonus() {
+    local area_id="${PLAYER[location]}"
+    local clear_key="area_cleared_${area_id}"
+
+    # Already cleared this area
+    echo " ${PLAYER[area_clear_record]:-} " | grep -qw "$area_id" && return
+
+    # Need at least 3 kills in this area to "clear" it
+    local area_kills_key="area_kills_${area_id}"
+    local kills="${PLAYER[$area_kills_key]:-0}"
+    if [ "$kills" -ge 3 ]; then
+        local bonus=$(( 200 + RANDOM % 300 ))
+        PLAYER[runes]=$(( PLAYER[runes] + bonus ))
+        if [ -z "${PLAYER[area_clear_record]:-}" ]; then
+            PLAYER[area_clear_record]="$area_id"
+        else
+            PLAYER[area_clear_record]="${PLAYER[area_clear_record]} $area_id"
+        fi
+        print_msg gold "✦ Area Clear Bonus! Obtained ${bonus} bonus runes!"
+    fi
+}
+
 explore_area() {
     local area_id="${PLAYER[location]}"
     local encounters="${AREA_ENCOUNTERS[$area_id]:-}"
@@ -207,7 +413,12 @@ explore_area() {
         printf "\n${LRED}  An enemy appears in the distance!${NC}\n"
         sleep 0.5
         run_combat "$enemy_id"
-        if [ "$COMBAT_RESULT" = "lose" ]; then
+        if [ "$COMBAT_RESULT" = "win" ]; then
+            # Track area kills for clear bonus
+            local area_kills_key="area_kills_${area_id}"
+            PLAYER[$area_kills_key]=$(( ${PLAYER[$area_kills_key]:-0} + 1 ))
+            check_area_clear_bonus
+        elif [ "$COMBAT_RESULT" = "lose" ]; then
             on_player_death
         fi
     else
@@ -286,6 +497,20 @@ _boss_fight() {
                 PLAYER[boss_morgott_dead]=1
                 game_ending
                 ;;
+            rykard)
+                PLAYER[boss_rykard_dead]=1
+                printf "\n"
+                print_msg lore "Rykard, Lord of Blasphemy, is consumed by his own serpent. The volcano grows silent."
+                PLAYER[crimson_flasks]=$(( ${PLAYER[crimson_flasks]:-0} + 1 ))
+                print_msg gold "Rykard's blasphemy yields: +1 Flask of Crimson Tears."
+                ;;
+            malenia)
+                PLAYER[boss_malenia_dead]=1
+                printf "\n"
+                print_msg lore "Malenia, Blade of Miquella, finally rests. The scarlet rot recedes."
+                PLAYER[crimson_flasks]=$(( ${PLAYER[crimson_flasks]:-0} + 2 ))
+                print_msg gold "Malenia's resolve: +2 Flasks of Crimson Tears."
+                ;;
         esac
         press_key
     elif [ "$COMBAT_RESULT" = "lose" ]; then
@@ -310,6 +535,7 @@ on_player_death() {
     PLAYER[fp]="${PLAYER[max_fp]}"
     PLAYER[stamina]="${PLAYER[max_stamina]}"
     PLAYER[crimson_flasks]=3
+    PLAYER[poison_status]=0
     print_msg info "You have respawned at the nearest Site of Grace."
     press_key
 }
@@ -346,6 +572,12 @@ area_menu() {
             leyndell)
                 boss_defeated "morgott" || { boss_here="morgott"; opts+=("${BLOOD}Fog Gate: Morgott, the Omen King${NC}"); actions+=("boss_morgott"); }
                 ;;
+            mount_gelmir)
+                boss_defeated "rykard" || { boss_here="rykard"; opts+=("${BLOOD}Fog Gate: Rykard, Lord of Blasphemy${NC}"); actions+=("boss_rykard"); }
+                ;;
+            caelid)
+                boss_defeated "malenia" || { boss_here="malenia"; opts+=("${BLOOD}Fog Gate: Malenia, Blade of Miquella${NC}"); actions+=("boss_malenia"); }
+                ;;
         esac
 
         opts+=("Site of Grace")
@@ -370,6 +602,10 @@ area_menu() {
             printf "  ${DARK}[Rennala has been pacified]${NC}\n"
         boss_defeated "morgott" && [ "${PLAYER[location]}" = "leyndell" ] && \
             printf "  ${DARK}[Morgott has been slain]${NC}\n"
+        boss_defeated "rykard" && [ "${PLAYER[location]}" = "mount_gelmir" ] && \
+            printf "  ${DARK}[Rykard has been slain]${NC}\n"
+        boss_defeated "malenia" && [ "${PLAYER[location]}" = "caelid" ] && \
+            printf "  ${DARK}[Malenia has been slain]${NC}\n"
         [ "${PLAYER[runes_on_ground]:-0}" -gt 0 ] && [ "${PLAYER[rune_location]:-}" = "${PLAYER[location]}" ] && \
             printf "  ${GOLD}Your lost runes (%d) are here — rest at grace to recover.${NC}\n" "${PLAYER[runes_on_ground]}"
         printf "\n"
@@ -397,6 +633,14 @@ area_menu() {
             boss_morgott)
                 _boss_fight "morgott" "Fog Gate: Morgott, the Omen King" \
                     "The throne room of Leyndell. Morgott descends from above, his omen horns bound in golden cloth. He will not let you pass."
+                ;;
+            boss_rykard)
+                _boss_fight "rykard" "Fog Gate: Rykard, Lord of Blasphemy" \
+                    "The depths of the volcano churn with lava. Rykard awaits, half-devoured by the serpent, his blasphemous blade hungry for champions."
+                ;;
+            boss_malenia)
+                _boss_fight "malenia" "Fog Gate: Malenia, Blade of Miquella" \
+                    "The scarlet rot hangs heavy in the air. Malenia stands alone, one-armed and undefeated. Her blade gleams with the light of Miquella."
                 ;;
             grace)  site_of_grace ;;
             travel) travel_menu ;;
